@@ -121,7 +121,7 @@ void loop() {
     current_state = ERROR;
   }
 
-  if(current_state != ERROR and current_state != IDLE) {
+  if(current_state != ERROR and current_state != DISABLED) {
     // track potentiometer movement to update servo angle
     myservo.write(adc_read(11) / 4); // potentiometer is on A11, divide by 4 to scale angle of servo
 
@@ -160,6 +160,7 @@ void loop() {
       break;
     case DISABLED:
       set_motor(false); // turn off fan
+      lcd.clear();
       reset_leds();
       BIT_SET(LED_PORT, YELLOW_PIN); // turn on yellow LED
       break;
@@ -197,10 +198,12 @@ bool measure_environment(float* temp, float* humidity) {
 void display_temp_humidity() {
   char printBuffer[128];
 
+  // first row is for temp
   lcd.setCursor(0, 0);
   sprintf(printBuffer, "Temperature: %dC", int(temp));
   lcd.print(printBuffer);
 
+  // second row for humidity
   lcd.setCursor(0, 1);
   sprintf(printBuffer, "Humidity: %d%%", int(humidity));
   lcd.print(printBuffer);
@@ -210,7 +213,7 @@ void display_time() {
   dt = clock.getDateTime();
   char str[50];
 
-  // sprintf returns number of characters added to the array - use this to loop over the string and send each char to Serial Monitor
+  // sprintf returns number of characters added to the array - I use this to loop over the string and send each char to Serial Monitor
   int num_chars = sprintf(str, "%d-%d-%d %d:%d:%d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
 
   for(int i = 0; i < num_chars; i++) {
